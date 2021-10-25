@@ -4,7 +4,7 @@ source("source.R") # contains functions "survivorship_F" and "MSYcalc"
 
 # Read in the two data sets
 
-AA <- read.csv("2/Ex_2_At_Age_Data.csv")[-1]
+AA <- read.csv("2/Ex2_At_Age_Data.csv")[-1]
 D <- read.csv("2/Ex2_Data.csv")[-1]
 
 ########################################################################################################################
