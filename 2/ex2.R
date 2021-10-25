@@ -1,6 +1,6 @@
 rm(list=ls())
 library(ggplot2)
-source("2/source.R") # contains functions "survivorship_F" and "MSYcalc"
+source("source.R") # contains functions "survivorship_F" and "MSYcalc"
 
 # Read in the two data sets
 
@@ -52,7 +52,7 @@ ggplot(AA,aes(y=m_age,x=age)) + geom_path() + theme_classic() + labs(x="Age", y=
 ggplot(AA,aes(y=v_age,x=age)) + geom_path() + theme_classic() + labs(x="Age", y="Vulnerability") + expand_limits(y=0) + expand_limits(x=0) 
 
 ########################################################################################################################
-# Plots from data frame AA
+# Plots from data frame D
 ########################################################################################################################
 #plot SR observations
 ggplot(D[!is.na(D$Rec),],aes(y=Rec,x=SSB,label=Year)) + geom_point() + theme_classic() + labs(x="SSB (kt)", y="Recruitment (10^9)") + expand_limits(y=0) + expand_limits(x=0) +
@@ -69,10 +69,9 @@ ggplot(D,aes(y=Catch,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y
 #Plot F
 ggplot(D,aes(y=Apical_F,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="F") + expand_limits(y=0) 
 
-#Plot dynamic SSB0, Equilibrium SSB0, Equilibrium SSBmsy
+#Plot Equilibrium SSB0, Equilibrium SSBmsy
 ggplot(D) + 
   geom_path(mapping=aes(y=SSB,x=Year)) +
-  geom_path(mapping=aes(y=dynamic_SSB0,x=Year),color="blue") +
   theme_classic() + labs(x="Year", y="SSB (kt)") + expand_limits(y=0) +
   geom_hline(yintercept=SSB0, linetype="dashed", color = "blue") + 
   geom_hline(yintercept=SSBmsy, color = "green") 

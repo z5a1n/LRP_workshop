@@ -2,7 +2,7 @@
 
 survivorship_F <- function(f=0,M,waa,mat,sel,message=T){
   if(length(M)==1){
-    message(paste0("Constant M = ",M," used for all ages"))
+    if(message==T){message(paste0("Constant M = ",M," used for all ages"))}
     M=rep(M,length(waa))
   }
   if(f==0){
