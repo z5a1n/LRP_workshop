@@ -52,8 +52,8 @@ SSBmsy <- calc$SSBmsy
 
 # Plots for Weight-at-age, Maturity-at-age, and vulnerability-at-age
 ggplot(melt(cbind(WAA,Year=1968:2020),id.vars = "Year"),aes(x=Year,y=value,group=variable,color=variable)) + geom_path() + theme_classic() + labs(x="Year", y="Weight (kg)") + labs(color = "Age")
-ggplot(melt(cbind(MAT,Year=1968:2020),id.vars = "Year"),aes(x=Year,y=value,group=variable,color=variable)) + geom_path() + theme_classic() + labs(x="Year", y="Weight (kg)") + labs(color = "Age")
-ggplot(melt(cbind(VUL,Year=1968:2020),id.vars = "Year"),aes(x=Year,y=value,group=variable,color=variable)) + geom_path() + theme_classic() + labs(x="Year", y="Weight (kg)") + labs(color = "Age")
+ggplot(melt(cbind(MAT,Year=1968:2020),id.vars = "Year"),aes(x=Year,y=value,group=variable,color=variable)) + geom_path() + theme_classic() + labs(x="Year", y="Maturity") + labs(color = "Age")
+ggplot(melt(cbind(VUL,Year=1968:2020),id.vars = "Year"),aes(x=Year,y=value,group=variable,color=variable)) + geom_path() + theme_classic() + labs(x="Year", y="Vulnerability") + labs(color = "Age")
 
 ########################################################################################################################
 # Plots from data frame D
