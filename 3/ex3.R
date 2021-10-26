@@ -1,7 +1,7 @@
 rm(list=ls())
 library(ggplot2)
 library(reshape2)
-source("source.R") # contains functions "survivorship_F" and "MSYcalc"
+source("functions.R") # contains functions "survivorship_F" and "MSYcalc"
 
 # Read in data
 
