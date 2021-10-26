@@ -72,7 +72,7 @@ ggplot() + geom_point(D[!is.na(D$Rec),],mapping=aes(y=Rec,x=SSB)) +
 ggplot(D[!is.na(D$Rec),],aes(y=Rec,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="Recruitment (10^9)") + expand_limits(y=0) 
 
 #Plot Historical Recruitment Deviations
-ggplot(D[!is.na(D$rec_dev),],aes(y=rec_dev,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="Recruitment Deviations") + expand_limits(y=0) 
+ggplot(D[!is.na(D$rec_dev),],aes(y=log(rec_dev),x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="log(Recruitment Deviations)") + expand_limits(y=0) 
 
 #Plot Historical SSB 
 ggplot(D,aes(y=SSB,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="SSB (kt)") + expand_limits(y=0)
