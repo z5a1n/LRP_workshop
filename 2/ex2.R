@@ -16,7 +16,7 @@ h <- 0.75 # model assumed steepness
 R0 <- 3.505041 # model estimated equilibrium unfished recruitment [provided]
 M <- 0.35 # model assumed natural mortality rate
 
-# survivorship_F: function from source.R (calculates survivorship-at-age from f=F, M=M, waa=weight-at-age, mat=maturity-at-age, sel=vulnerability-at-age when F !=0)
+# survivorship_F: function from functions.R (calculates survivorship-at-age from f=F, M=M, waa=weight-at-age, mat=maturity-at-age, sel=vulnerability-at-age when F !=0)
 # survivorship_F <- function(f=0,M,waa,mat,sel)
 l_age <- survivorship_F(M=M,waa=AA$w_age,mat=AA$m_age) # survivorship-at-age (unfished, F=0)
 phi0 <- sum(l_age*AA$w_age*AA$m_age) # unfished spawning biomass  per recruit
@@ -32,7 +32,7 @@ SSB0 <- R0/(BHa-BHb*R0)
 # Calculate equilibrium SSBmsy
 ########################################################################################################################
 
-# MSYcalc: function from source.R returns a list with Fmsy, msy, SSBmsy from M=M, waa=weight-at-age, mat=maturity-at-age, sel=vulnerability-at-age, Beverton-Holt a and b
+# MSYcalc: function from functions.R returns a list with Fmsy, msy, SSBmsy from M=M, waa=weight-at-age, mat=maturity-at-age, sel=vulnerability-at-age, Beverton-Holt a and b
 # MSYcalc <- function(M,waa,mat,sel,a,b)
 
 calc <- MSYcalc(M=0.35,waa=AA$w_age,mat=AA$m_age,sel=AA$v_age,a=BHa,b=BHb)
