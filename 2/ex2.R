@@ -4,8 +4,8 @@ source("functions.R") # contains functions "survivorship_F" and "MSYcalc"
 
 # Read in the two data sets
 
-AA <- read.csv("2/Ex2_At_Age_Data.csv")[-1]
-D <- read.csv("2/Ex2_Data.csv")[-1]
+AA <- read.csv("2/Ex2_At_Age_Data.csv")
+D <- read.csv("2/Ex2_Data.csv")
 
 ########################################################################################################################
 # Move h/R0/phi0 parameterization of B-H SRR to a/b parameterization and calculate "unfished equilibrium SSB"
@@ -16,9 +16,9 @@ h <- 0.75 # model assumed steepness
 R0 <- 3.505041 # model estimated equilibrium unfished recruitment [provided]
 M <- 0.35 # model assumed natural mortality rate
 
-# survivorship_F: function from functions.R (calculates survivorship-at-age from f=F, M=M, waa=weight-at-age, mat=maturity-at-age, sel=vulnerability-at-age when F !=0)
-# survivorship_F <- function(f=0,M,waa,mat,sel)
-l_age <- survivorship_F(M=M,waa=AA$w_age,mat=AA$m_age) # survivorship-at-age (unfished, F=0)
+# survivorship_F: function from functions.R (calculates survivorship-at-age from f=F (default is F=0), M=M, n_ages = number of age classes (including 0 and plus group), sel=vulnerability-at-age when F !=0)
+# survivorship_F <- function(f=0,M,n_ages,sel)
+l_age <- survivorship_F(M=M,n_ages=length(AA$w_age)) # survivorship-at-age (unfished, F=0)
 phi0 <- sum(l_age*AA$w_age*AA$m_age) # unfished spawning biomass  per recruit
 
 # B-H a and b
@@ -67,7 +67,7 @@ ggplot(D,aes(y=SSB,x=Year)) + geom_path() +theme_classic() + labs(x="Year", y="S
 #Plot Historical Catch
 ggplot(D,aes(y=Catch,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="Catch (kt)") + expand_limits(y=0)
 #Plot F
-ggplot(D,aes(y=Apical_F,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="F") + expand_limits(y=0) 
+ggplot(D,aes(y=f,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="F") + expand_limits(y=0) 
 
 #Plot Equilibrium SSB0, Equilibrium SSBmsy
 ggplot(D) + 
@@ -76,6 +76,18 @@ ggplot(D) +
   geom_hline(yintercept=SSB0, linetype="dashed", color = "blue") + 
   geom_hline(yintercept=SSBmsy, color = "green") 
 
-#Plot Acoustic Index
-ggplot(D[!is.na(D$Acoustic_Index),]) + geom_path(mapping=aes(y=Acoustic_Index,x=Year)) +
-  theme_classic() + labs(x="Year", y="Acoustic SSB (kt)") + expand_limits(y=0,x=1968)
+
+# Plot acoustic index 1999-2020
+  #Add x yr moving average (example 3 years)
+  D$MA_Index <- NA
+  D$MA_Index[D$Year%in%2001:2020] <- apply(cbind(D$Acoustic_Index[D$Year%in%2001:2020],D$Acoustic_Index[D$Year%in%2000:2019],D$Acoustic_Index[D$Year%in%1999:2018]),1,mean)
+
+  #Add loess smoother (example span = 0.5)
+  lsmooth <- loess(Acoustic_Index ~ Year,data=D,span=0.5)  
+  D$lowess_Index <- NA
+  D$lowess_Index[D$Year%in%1999:2020] <- predict(lsmooth)
+
+ggplot(D[!is.na(D$Acoustic_Index),]) + geom_path(mapping=aes(y=Acoustic_Index,x=Year)) + theme_classic() + labs(x="Year", y="Acoustic SSB (kt)") + expand_limits(y=0,x=1968) +
+  geom_path(data=D[!is.na(D$MA_Index),],mapping=aes(y=MA_Index,x=Year),color="red") +
+  geom_path(data=D[!is.na(D$lowess_Index),],mapping=aes(y=lowess_Index,x=Year),color="blue") 
+

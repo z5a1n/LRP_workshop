@@ -33,18 +33,19 @@ BHb <- 1/R0*(BHa-1/phi0_5) # estimated Beverton-Holt b
 SSB0 <- R0/(BHa-BHb*R0)
 
 ########################################################################################################################
-# Calculate SSBmsy for first 5 years. Note: MSYcalc function can be used to estimate MSY reference points for various
-# time periods. One time period is displayed here.
+# Calculate SSBmsy using WAA, MAT, VUL from first 5 years and last 10 years [Note: 53 years of data]
+# Note: MSYcalc function can be used to estimate MSY reference points for various time periods. 
 ########################################################################################################################
 
 # MSYcalc: function from source.R returns a list with Fmsy, msy, SSBmsy from M=M, waa=weight-at-age, mat=maturity-at-age, sel=vulnerability-at-age, Beverton-Holt a and b
 # MSYcalc <- function(M,waa,mat,sel,a,b)
 
-calc <- MSYcalc(M=0.35,waa=apply(WAA[1:5,],2,mean), mat=apply(MAT[1:5,],2,mean), sel=apply(VUL[1:5,],2,mean),a=BHa, b=BHb)
+calc_years1_5 <- MSYcalc(M=0.35,waa=apply(WAA[1:5,],2,mean), mat=apply(MAT[1:5,],2,mean), sel=apply(VUL[1:5,],2,mean),a=BHa, b=BHb)
+calc_last10years <- MSYcalc(M=0.35,waa=apply(WAA[44:53,],2,mean), mat=apply(MAT[44:53,],2,mean), sel=apply(VUL[44:53,],2,mean),a=BHa, b=BHb)
 
-Fmsy <- calc$Fmsy
-msy <- calc$msy
-SSBmsy <- calc$SSBmsy
+calc_years1_5$Fmsy
+calc_years1_5$SSBmsy
+calc_years1_5$msy
 
 ########################################################################################################################
 # Plots 
@@ -60,8 +61,8 @@ ggplot(melt(cbind(VUL,Year=1968:2020),id.vars = "Year"),aes(x=Year,y=value,group
 ########################################################################################################################
 
 ggplot(D[!is.na(D$Rec),],aes(y=Rec,x=SSB,label=Year)) + geom_point() +
-  theme_classic() + labs(x="SSB (kt)", y="Recruitment (10^9)") + expand_limits(y=0) + expand_limits(x=0) #+
-  #geom_text(mapping=aes(y=Rec,x=SSB,label=Year),nudge_y = 0.5) 
+  theme_classic() + labs(x="SSB (kt)", y="Recruitment (10^9)") + expand_limits(y=0) + expand_limits(x=0) +
+  geom_text(mapping=aes(y=Rec,x=SSB,label=Year),nudge_y = 0.5,size=2) 
 
 #plot SRR and observations
 ggplot() + geom_point(D[!is.na(D$Rec),],mapping=aes(y=Rec,x=SSB)) +
@@ -81,7 +82,7 @@ ggplot(D,aes(y=SSB,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="
 ggplot(D,aes(y=Catch,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="Catch (kt)") + expand_limits(y=0)
 
 #Plot F
-ggplot(D,aes(y=Apical_F,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="F") + expand_limits(y=0) 
+ggplot(D,aes(y=f,x=Year)) + geom_path() + theme_classic() + labs(x="Year", y="F") + expand_limits(y=0) 
 
 #Plot dynamic SSB0
 ggplot(D) + 
@@ -93,5 +94,25 @@ ggplot(D) +
   theme_classic() + labs(x="Year", y="SSB (kt)") + expand_limits(y=0) +
   geom_hline(yintercept=SSB0, linetype="dashed", color = "green") 
 
-# Plot acoustic index
-ggplot(D[!is.na(D$Acoustic_Index),]) + geom_path(mapping=aes(y=Acoustic_Index,x=Year)) + theme_classic() + labs(x="Year", y="Acoustic SSB (kt)") + expand_limits(y=0,x=1968)
+#Plot SSBmsy with WAA,MAT,VUL from different time periods
+ggplot(D) + 
+  geom_path(mapping=aes(y=SSB,x=Year)) +
+  theme_classic() + labs(x="Year", y="SSB (kt)") + expand_limits(y=0) +
+  geom_hline(yintercept=calc_years1_5$SSBmsy, linetype="dashed", color = "red") +
+  geom_hline(yintercept=calc_last10years$SSBmsy, linetype="dashed", color = "blue") 
+  
+# Plot acoustic index 1999-2020
+  #Add x yr moving average (example 3 years)
+  D$MA_Index <- NA
+  D$MA_Index[D$Year%in%2001:2020] <- apply(cbind(D$Acoustic_Index[D$Year%in%2001:2020],D$Acoustic_Index[D$Year%in%2000:2019],D$Acoustic_Index[D$Year%in%1999:2018]),1,mean)
+
+  #Add loess smoother (example span = 0.5)
+  lsmooth <- loess(Acoustic_Index ~ Year,data=D,span=0.5)  
+  D$lowess_Index <- NA
+  D$lowess_Index[D$Year%in%1999:2020] <- predict(lsmooth)
+  
+  ggplot(D[!is.na(D$Acoustic_Index),]) + geom_path(mapping=aes(y=Acoustic_Index,x=Year)) + theme_classic() + labs(x="Year", y="Acoustic SSB (kt)") + expand_limits(y=0,x=1968) +
+    geom_path(data=D[!is.na(D$MA_Index),],mapping=aes(y=MA_Index,x=Year),color="red") +
+    geom_path(data=D[!is.na(D$lowess_Index),],mapping=aes(y=lowess_Index,x=Year),color="blue") 
+  
+  

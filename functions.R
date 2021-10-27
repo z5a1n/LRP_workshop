@@ -1,29 +1,40 @@
-#Functions
+# Functions
 
-survivorship_F <- function(f=0,M,waa,mat,sel,message=T){
+
+# default is f = 0, M can be constant or vector of length n_ages
+# n_ages is number of age classes including 0 (if defined) and the plus group
+# sel = vector for vulnerability-at-age and is of length (n_age) and only required if f > 0
+survivorship_F <- function(f=0,M,n_ages,sel,message=T){
+  if(n_ages<=2){message(paste0("number of age classes must be greater than 2"))}
   if(length(M)==1){
     if(message==T){message(paste0("Constant M = ",M," used for all ages"))}
-    M=rep(M,length(waa))
+    M=rep(M,n_ages)
   }
   if(f==0){
-    sel=rep(0,length(waa))
+    sel=rep(0,n_ages)
     if(message==T){message("Assumed F = 0, unfished survivorship")}
   }
-  if(length(waa) != length(mat) | length(waa) != length(sel)){
-    message("at-age vectors are not the same length")
+  if(n_ages != length(sel)){
+    message("age clasees in vulnerability vector != n_ages")
     return(NA)
   }
-  if(length(waa) == length(mat) & length(waa) == length(sel)){
-    l_age <- rep(NA,length(waa)) 
+  if(n_ages == length(sel)){
+    l_age <- rep(NA,n_ages) 
     l_age[1] <- 1
-    for(a in 2:(length(waa)-1)){
+    for(a in 2:(n_ages-1)){
       l_age[a] <- l_age[a-1]* exp(-M[a-1]-f*sel[a-1])
     }
-    l_age[length(waa)] <- l_age[length(waa)-1]*exp(-M[a-1]-f*sel[a-1])/(1-exp(-M[a]-f*sel[a]))
+    l_age[n_ages] <- l_age[n_ages-1]*exp(-M[a-1]-f*sel[a-1])/(1-exp(-M[a]-f*sel[a]))
     return(l_age)
   }
 }
 
+# M can be constant or vector
+# waa = weight-at-age vector
+# mat = maturity-at-age vector
+# sel = vulnerability vector
+# all vectors must of of same length
+# a and b and Beverton_Holt a and b parameters
 MSYcalc <- function(M,waa,mat,sel,a,b){
 
   output <- list()
@@ -44,7 +55,7 @@ MSYcalc <- function(M,waa,mat,sel,a,b){
   
   if(length(waa) == length(mat) & length(waa) == length(sel)){
     for(i in 1:length(f)){
-      SURV_a[i,] <- survivorship_F(f=f[i],M,waa,mat,sel,message=F)
+      SURV_a[i,] <- survivorship_F(f=f[i],M=M,n_ages=length(sel),sel=sel,message=F)
       for(j in 1:ncol(YPR_a)){
         YPR_a[i,j] <- SURV_a[i,j]*waa[j]*f[i]*sel[j]*(1-exp(-f[i]*sel[j]-M[j]))/(f[i]*sel[j]+M[j])
       }
